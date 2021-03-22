@@ -1,0 +1,8 @@
+(defun набор (lst)
+    (cond ((null lst) (list))
+          ((atom lst) (list lst))
+          ((listp lst) 
+              (append (набор (first lst)) (набор (rest lst)))
+          )
+    )
+)
