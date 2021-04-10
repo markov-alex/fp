@@ -1,0 +1,228 @@
+\documentclass[12pt]{article}
+
+\usepackage{fullpage}
+\usepackage{multicol,multirow}
+\usepackage{tabularx}
+\usepackage{ulem}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+\usepackage{amsmath}
+\usepackage{amsmath}
+
+\usepackage{titlesec}
+
+\titleformat{\section}
+  {\normalfont\Large\bfseries}{\thesection.}{0.3em}{}
+
+\titleformat{\subsection}
+  {\normalfont\large\bfseries}{\thesubsection.}{0.3em}{}
+
+\titlespacing{\section}{0pt}{*2}{*2}
+\titlespacing{\subsection}{0pt}{*1}{*1}
+\titlespacing{\subsubsection}{0pt}{*0}{*0}
+\usepackage{listings}
+\lstloadlanguages{Lisp}
+\lstset{extendedchars=false,
+	breaklines=true,
+	breakatwhitespace=true,
+	keepspaces = true,
+	tabsize=2
+}
+\begin{document}
+
+
+\section*{Отчет по лабораторной работе №\,3
+по курсу \guillemotleft  Функциональное программирование\guillemotright}
+\begin{flushright}
+Студент группы 8О-308 МАИ \textit{Марков Александр}, \textnumero 15 по списку \\
+\makebox[7cm]{Контакты: {\tt markov.lifeacc@gmail.com} \hfill} \\
+\makebox[7cm]{Работа выполнена: 10.04.2021 \hfill} \\
+\ \\
+Преподаватель: Иванов Дмитрий Анатольевич, доц. каф. 806 \\
+\makebox[7cm]{Отчет сдан: \hfill} \\
+\makebox[7cm]{Итоговая оценка: \hfill} \\
+\makebox[7cm]{Подпись преподавателя: \hfill} \\
+
+\end{flushright}
+
+\section{Тема работы}
+Последовательности, массивы и управляющие конструкции Common Lisp.
+
+\section{Цель работы}
+Научиться создавать векторы и массивы для представления матриц, освоить общие функции работы с последовательностями, инструкции цикла и нелокального выхода.
+
+\section{Задание (вариант №3.14)}
+Запрограммировать на языке Коммон Лисп функцию, принимающую два аргумента:
+
+\begin{itemize}
+    \item A - двумерный массив, представляющий действительную матрицу произвольного размера,
+    \item r - действительное число.
+\end{itemize}
+
+Функция должна найти наименьший элемент матрицы и вернуть новую матрицу того же размера, получающуюся из данной заменой всех вхождений наименьшего элемента на r.
+
+Исходный массив должен оставаться неизменным.
+
+\section{Оборудование студента}
+Процессор AMD Ryzen 5 4600H 3.00 GHz, память: 16Gb, разрядность системы: 64.
+
+\section{Программное обеспечение}
+ОС Windows 10, среда LispWorks Personal Edition 7.1.2
+
+\section{Идея, метод, алгоритм}
+
+Задача была разбита на две подзадачи:
+
+\begin{itemize}
+    \item Поиск минимального элемента. Для этого была реализована функция \textbf{find-min};
+    \item Создание нового двумерного массива и изменение всех входений наименьшего элемента. Для этого была реализована функция \textbf{change-arr}.
+\end{itemize}
+
+Функция \textbf{find-min} принимает двумерный массив, возвращает минимальный элемент и работает следующим образом:
+
+\begin{itemize}
+    \item С помощью вложенных циклов рассматривается каждый элемент двумерного массива.
+    \item Если рассматриваемый элемент меньше, чем текущий наименьший, то обновляем значение наименьшего элемента.
+\end{itemize}
+
+Функий \textbf{change-arr} принимает двумерный массив $arr$ и действительное число $r$, возвращает новый двумерный массив, в котором все вхождения наименьшего элемента массива $arr$ заменены на $r$. Работает следующим образом:
+
+\begin{itemize}
+    \item Создается новый двумерный массив $new-arr$, имеющий размер такой же, что и у $arr$;
+    \item С помощью функции \textbf{find-min} находится наименьший элемент массива $arr$;
+    \item С помощью вложенных циклов рассматривается каждый элемент двумерного массива. Если этот элемент равен наименьшему, то на это же место в $new-arr$ ставится $r$. Иначе - элемент $arr$.
+\end{itemize}
+
+\section{Сценарий выполнения работы}
+
+\section{Распечатка программы и её результаты}
+
+\subsection{Исходный код}
+\begin{lstlisting}
+(defun print-matrix (matrix &optional (chars 3) stream)
+  (let ((*print-right-margin* (+ 6 (* (+ 1 chars) (array-dimension matrix 1)))))
+    (pprint matrix stream)
+    (values)
+  )
+)
+
+(defun find-min (arr)
+  (let ((m (array-dimension arr 0))
+        (n (array-dimension arr 1))
+        (min-el (aref arr 0 0))
+       )
+    (loop for i upfrom 0 to (- m 1)
+      do
+      (loop for j upfrom 0 to (- n 1)
+        do (when (< (aref arr i j) min-el)
+             (setf min-el (aref arr i j))
+           )
+      )
+    )
+    min-el
+  )
+)
+
+(defun change-arr (arr r)
+  (let* ((m (array-dimension arr 0))
+         (n (array-dimension arr 1))
+         (new-arr (make-array (list m n) :initial-element 0.0))
+         (min-el (find-min arr))
+        )
+    (loop for i upfrom 0 to (- m 1)
+      do
+      (loop for j upfrom 0 to (- n 1)
+        do (when (= (aref arr i j) min-el)
+             (setf (aref new-arr i j) r)
+           )
+           (when (/= (aref arr i j) min-el)
+             (setf (aref new-arr i j) (aref arr i j))
+           )
+      )
+    )
+    new-arr
+  )
+)
+
+\end{lstlisting}
+
+\subsection{Результаты работы}
+
+\begin{lstlisting}
+CL-USER 17 > (print-matrix test1 6)
+
+#2A((6.53 4321.4 431.44)
+    (8.0 6.53 77.78)
+    (123.12 88.132 6.53))
+
+CL-USER 18 > (defvar result1 (change-arr test1 0.0))
+RESULT1
+
+CL-USER 19 > (print-matrix result1 6)
+
+#2A((0.0 4321.4 431.44)
+    (8.0 0.0 77.78)
+    (123.12 88.132 0.0))
+
+CL-USER 20 > (print-matrix test1 6)
+
+#2A((6.53 4321.4 431.44)
+    (8.0 6.53 77.78)
+    (123.12 88.132 6.53))
+
+CL-USER 21 > (print-matrix test2 6)
+
+#2A((134.2 575.2 4321.4 55.55)
+    (77.66 66.77 777.0 412.412)
+    (431.44 12.33 33.12 1.0))
+
+CL-USER 22 > (defvar result2 (change-arr test2 0.0))
+RESULT2
+
+CL-USER 23 > (print-matrix result2 7)
+
+#2A((134.2 575.2 4321.4 55.55)
+    (77.66 66.77 777.0 412.412)
+    (431.44 12.33 33.12 0.0))
+
+CL-USER 24 > (print-matrix test2 7)
+
+#2A((134.2 575.2 4321.4 55.55)
+    (77.66 66.77 777.0 412.412)
+    (431.44 12.33 33.12 1.0))
+
+CL-USER 25 > (print-matrix test3 4)
+
+#2A((1.0 1.0 44.4)
+    (5.0 21.2 41.4))
+
+CL-USER 26 > (defvar result3 (change-arr test3 99.9))
+RESULT3
+
+CL-USER 27 > (print-matrix result3 4)
+
+#2A((99.9 99.9 44.4)
+    (5.0 21.2 41.4))
+
+CL-USER 28 > (print-matrix test3 4)
+
+#2A((1.0 1.0 44.4)
+    (5.0 21.2 41.4))
+\end{lstlisting}
+
+\section{Дневник отладки}
+\begin{tabular}{|m{2cm}|m{6cm}|m{4cm}|m{3cm}|}
+\hline
+Дата & Событие & Действие по исправлению & Примечание \\
+\hline
+& & & \\
+\hline
+\end{tabular}
+
+\section{Замечания автора по существу работы}
+Алгоритмически задача очень простая, но было достаточно интересно реализовать ее на Common Lisp.
+
+\section{Выводы}
+Массивы явлются основополагающей структурой данных в программировании и часто используются, поскольку в них удобно хранить данные. При выполнение данной лабораторной работы я познакомился с массивами в языке Common Lisp, а также попрактиковался с циклами.
+
+\end{document}
