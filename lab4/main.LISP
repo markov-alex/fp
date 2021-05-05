@@ -1,0 +1,42 @@
+(defun word-list (sentence)
+  (loop with len = (length sentence)
+    for left = 0 then (1+ right)
+    for right = (or (position-if #'whitespace-char-p sentence :start left)
+                    len)
+    unless (= right left)
+      collect (subseq sentence left right)
+    while (< right len)
+  )
+)
+
+(defun russian-upper-case-p (char)
+  (position char "ÀÁÂÃÄÅ¨ÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß")
+)
+
+(defun russian-char-downcase (char)
+  (let ((i (russian-upper-case-p char)))
+    (if i
+      (char "àáâãäå¸æçèéêëìíîïðñòóôõö÷øùúûüýþÿ" i)
+      (char-downcase char)   
+    )
+  )
+)
+
+(defun russian-char-equal (char1 char2)
+  (char-equal (russian-char-downcase char1)
+              (russian-char-downcase char2)
+  )
+)
+
+(defun last-word-char-count (char sentence)
+  (let* ((word-list (word-list sentence))
+         (len-word-list (length word-list))
+         (last-word (nth (- len-word-list 1) word-list))
+         (count-matched 0)
+        )
+    (loop for ch across last-word
+      do (when (russian-char-equal ch char) (setf count-matched (+ 1 count-matched)))
+    )
+    count-matched
+  )
+)
