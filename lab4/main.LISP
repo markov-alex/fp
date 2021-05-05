@@ -31,11 +31,19 @@
 (defun last-word-char-count (char sentence)
   (let* ((word-list (word-list sentence))
          (len-word-list (length word-list))
-         (last-word (nth (- len-word-list 1) word-list))
+         (last-word (if (= (- len-word-list 1) -1)
+                        NIL
+                        (nth (- len-word-list 1) word-list)
+           )
+         )
          (count-matched 0)
         )
-    (loop for ch across last-word
-      do (when (russian-char-equal ch char) (setf count-matched (+ 1 count-matched)))
+    (if (stringp last-word)
+        (loop for ch across last-word
+          do (when (russian-char-equal ch char)
+                   (setf count-matched (+ 1 count-matched))
+             )
+        )
     )
     count-matched
   )
