@@ -1,0 +1,199 @@
+\documentclass[12pt]{article}
+
+\usepackage{fullpage}
+\usepackage{multicol,multirow}
+\usepackage{tabularx}
+\usepackage{ulem}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+\usepackage{amsmath}
+\usepackage{amsmath}
+\usepackage{minted}
+\usepackage{titlesec}
+
+\titleformat{\section}
+  {\normalfont\Large\bfseries}{\thesection.}{0.3em}{}
+
+\titleformat{\subsection}
+  {\normalfont\large\bfseries}{\thesubsection.}{0.3em}{}
+
+\titlespacing{\section}{0pt}{*2}{*2}
+\titlespacing{\subsection}{0pt}{*1}{*1}
+\titlespacing{\subsubsection}{0pt}{*0}{*0}
+\usepackage{listings}
+\lstloadlanguages{Lisp}
+\lstset{extendedchars=false,
+	breaklines=true,
+	breakatwhitespace=true,
+	keepspaces = true,
+	tabsize=2
+}
+\begin{document}
+
+
+\section*{Отчет по лабораторной работе №\,4 
+по курсу \guillemotleft  Функциональное программирование\guillemotright}
+\begin{flushright}
+Студент группы 8О-308 МАИ \textit{Марков Александр}, \textnumero 15 по списку \\
+\makebox[7cm]{Контакты: {\tt markov.lifeacc@gmail.com} \hfill} \\
+\makebox[7cm]{Работа выполнена: 05.05.2021 \hfill} \\
+\ \\
+Преподаватель: Иванов Дмитрий Анатольевич, доц. каф. 806 \\
+\makebox[7cm]{Отчет сдан: \hfill} \\
+\makebox[7cm]{Итоговая оценка: \hfill} \\
+\makebox[7cm]{Подпись преподавателя: \hfill} \\
+
+\end{flushright}
+
+\section{Тема работы}
+Знаки и строки.
+
+\section{Цель работы}
+Научиться работать с литерами (знаками) и строками при помощи функций обработки строк и общих функций работы с последовательностями.
+
+\section{Задание (вариант №3.14)}
+Запрограммировать на языке Коммон Лисп функцию с двумя параметрами:
+
+\begin{itemize}
+    \item char - знак,
+    \item sentence - строка предложения.
+\end{itemize}
+
+Функция должна подсчитать число вхождений знака char в последнее слово предложения sentence. Сравнение как латинских букв, так и русских должно быть регистро-независимым.
+
+\section{Оборудование студента}
+Процессор AMD Ryzen 5 4600H 3.00 GHz, память: 16Gb, разрядность системы: 64.
+
+\section{Программное обеспечение}
+ОС Windows 10, среда LispWorks Personal Edition 7.1.2
+
+\section{Идея, метод, алгоритм}
+
+Функция \textbf{last-word-char-count} принимает знак \textit{char} и предложение \textit{sentence}. Возвращает количество вхождений \textit{char} в последнее слово предложения \textit{sentence}. Функция работает следующим образом:
+
+\begin{enumerate}
+    \item Из предложения создается список слов с помощью функции из лекции \textbf{word-list};
+    \item Берется последний элемент списка (последнее слово предложения);
+    \item С помощью цикла рассматривается каждый символ последнего слова. Если рассматриваемый символ совпадает с \textit{char}, то увеличивается счётчик совпадений на единицу;
+    \item Возвращается значение счётчика совпадений.
+\end{enumerate}
+
+Для корректного регистро-независимого сравнения как латинских символов, так и русских, используются функции из лекции: \textbf{russian-char-equal}, \textbf{russian-char-downcase}, \textbf{russian-upper-case-p}.
+
+\section{Сценарий выполнения работы}
+
+\section{Распечатка программы и её результаты}
+
+\subsection{Исходный код}
+\begin{minted}[
+    frame=leftline,
+    linenos
+]{cl}
+(defun word-list (sentence)
+  (loop with len = (length sentence)
+    for left = 0 then (1+ right)
+    for right = (or (position-if #'whitespace-char-p sentence :start left)
+                    len)
+    unless (= right left)
+      collect (subseq sentence left right)
+    while (< right len)
+  )
+)
+
+(defun russian-upper-case-p (char)
+  (position char "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ")
+)
+
+(defun russian-char-downcase (char)
+  (let ((i (russian-upper-case-p char)))
+    (if i
+      (char "абвгдеёжзийклмнопрстуфхцчшщъыьэюя" i)
+      (char-downcase char)   
+    )
+  )
+)
+
+(defun russian-char-equal (char1 char2)
+  (char-equal (russian-char-downcase char1)
+              (russian-char-downcase char2)
+  )
+)
+
+(defun last-word-char-count (char sentence)
+  (let* ((word-list (word-list sentence))
+         (len-word-list (length word-list))
+         (last-word (if (= (- len-word-list 1) -1)
+                        NIL
+                        (nth (- len-word-list 1) word-list)
+           )
+         )
+         (count-matched 0)
+        )
+    (if (stringp last-word)
+        (loop for ch across last-word
+          do (when (russian-char-equal ch char)
+                   (setf count-matched (+ 1 count-matched))
+             )
+        )
+    )
+    count-matched
+  )
+)
+\end{minted}
+
+\subsection{Результаты работы}
+
+\begin{minted}[style=bw]{console}
+CL-USER 8 > test1
+"Я сразу смазал карту будня,"
+
+CL-USER 9 > (last-word-char-count #\Д test1)
+1
+
+CL-USER 10 > (last-word-char-count #\д test1)
+1
+
+CL-USER 11 > (last-word-char-count #\z test1)
+0
+
+CL-USER 12 > test2
+"плеснувши краску из стакана;"
+
+CL-USER 13 > (last-word-char-count #\А test2)
+3
+
+CL-USER 14 > test3
+"я показал на блюде студня"
+
+CL-USER 15 > (last-word-char-count #\т test3)
+1
+
+CL-USER 16 > test4
+"косые скулы океана."
+
+CL-USER 17 > (last-word-char-count #\а test4)
+2
+
+CL-USER 18 > test5
+""
+
+CL-USER 19 > (last-word-char-count #\g test5)
+0
+\end{minted}
+
+\section{Дневник отладки}
+\begin{tabular}{|m{2cm}|m{6cm}|m{4cm}|m{3cm}|}
+\hline
+Дата & Событие & Действие по исправлению & Примечание \\
+\hline
+05.05.2021 & Происходила ошибка, если изначальное предложение было пустым & Был добавлен if при присваивании значения last-word, чтобы не было обращения к списку по несуществующему индексу & \\
+\hline
+\end{tabular}
+
+\section{Замечания автора по существу работы}
+Коммон Лисп предоставляет удобные средства для работы со строками.
+
+\section{Выводы}
+При выполнении данной лабораторной работы я научился работать со строками при помощи функций обработки строк и общих функций работы с последовательностями. Также при выполнении работы мне помогли знания, приобретенные в предыдущих работах.
+
+\end{document}
