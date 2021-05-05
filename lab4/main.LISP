@@ -10,13 +10,13 @@
 )
 
 (defun russian-upper-case-p (char)
-  (position char "ÀÁÂÃÄÅ¨ÆÇÈÉÊËÌÍÎÏĞÑÒÓÔÕÖ×ØÙÚÛÜİŞß")
+  (position char "ĞĞ‘Ğ’Ğ“Ğ”Ğ•ĞĞ–Ğ—Ğ˜Ğ™ĞšĞ›ĞœĞĞĞŸĞ Ğ¡Ğ¢Ğ£Ğ¤Ğ¥Ğ¦Ğ§Ğ¨Ğ©ĞªĞ«Ğ¬Ğ­Ğ®Ğ¯")
 )
 
 (defun russian-char-downcase (char)
   (let ((i (russian-upper-case-p char)))
     (if i
-      (char "àáâãäå¸æçèéêëìíîïğñòóôõö÷øùúûüışÿ" i)
+      (char "Ğ°Ğ±Ğ²Ğ³Ğ´ĞµÑ‘Ğ¶Ğ·Ğ¸Ğ¹ĞºĞ»Ğ¼Ğ½Ğ¾Ğ¿Ñ€ÑÑ‚ÑƒÑ„Ñ…Ñ†Ñ‡ÑˆÑ‰ÑŠÑ‹ÑŒÑÑÑ" i)
       (char-downcase char)   
     )
   )
